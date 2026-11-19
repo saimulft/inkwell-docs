@@ -1,7 +1,6 @@
 'use client';
 
 import { ArrowRight, Loader2 } from 'lucide-react';
-import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { UserAvatar } from '@/components/user-avatar';
@@ -11,15 +10,15 @@ import { api, errorMessage } from '@/lib/client-api';
 type Props = { accounts: PublicUser[]; currentUserId: string | null; next: string };
 
 export function DemoAccountList({ accounts, currentUserId, next }: Props) {
-  const router = useRouter();
   const [pending, setPending] = useState<string | null>(null);
 
   async function signIn(account: PublicUser) {
     setPending(account.id);
     try {
       await api('/api/auth/login', { method: 'POST', json: { email: account.email } });
-      router.push(next);
-      router.refresh();
+      // A full page load, not a client navigation: the router may hold pages prefetched under the previous
+      // session (for example "/" cached as a redirect to /login while signed out).
+      window.location.assign(next);
     } catch (error) {
       toast.error(errorMessage(error));
       setPending(null);

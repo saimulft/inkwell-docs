@@ -1,7 +1,6 @@
 'use client';
 
 import { LogOut, Users } from 'lucide-react';
-import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { UserAvatar } from '@/components/user-avatar';
 import {
@@ -16,13 +15,12 @@ import type { PublicUser } from '@/lib/auth/session';
 import { api, errorMessage } from '@/lib/client-api';
 
 export function UserMenu({ user }: { user: PublicUser }) {
-  const router = useRouter();
-
   async function signOut(next: string) {
     try {
       await api('/api/auth/logout', { method: 'POST' });
-      router.push(next);
-      router.refresh();
+      // A full page load, not a client navigation: the router may hold pages prefetched under the previous
+      // session (for example "/" cached as a redirect to /login while signed out).
+      window.location.assign(next);
     } catch (error) {
       toast.error(errorMessage(error));
     }

@@ -26,6 +26,7 @@ The time I saved went into product decisions and verification.
 - **Diagnosed before fixing:** a browser check showed the new comments panel covering the whole screen. Instead of changing the layout code, I inspected the CSS the server was sending, which already had the right rules; the browser was holding a stale cached dev stylesheet. Restarting on a fresh origin confirmed the layout was correct.
 - **Caught a broken config:** an AI-written `next.config.ts` replaced the scaffold's file and dropped the Tailwind Turbopack loader, so no styles compiled. The dev server error showed it and I restored the loader.
 - **Refactored AI-generated dialogs** that reset their state with `setState` inside effects, which React's lint rules flag. They now reset by remounting with a `key`, or load once on mount.
+- **Caught a production-only sign-in bug in the live smoke test.** Picking a demo account while signed out did nothing on Vercel: the logo link on the sign-in page let Next.js prefetch `/`, which was cached as a redirect to `/login`, so the client-side navigation after sign-in landed back on the sign-in page. Dev mode doesn't prefetch, so local runs and tests missed it. Sign-in and sign-out now do a full page load.
 - **Hardened Markdown import:** the first version would have passed raw HTML from a `.md` file into the parser. It is now escaped and shown as text.
 
 ## How I verified correctness, UX and reliability
@@ -34,6 +35,6 @@ The time I saved went into product decisions and verification.
 - **Automated tests:** 32 Vitest tests in 5 files on PGlite, so they run real Postgres SQL. They cover the permission matrix including the commenter role, sharing rules, optimistic-concurrency conflicts, comments and their permissions, version history folding and restore, editing presence, file conversion, Markdown export and the main API error paths.
 - **API checks with curl** for every error path: 401 without a session, 403 for a viewer editing and for cross-origin writes, 404 for a stranger, 409 for a stale save, 415 for an unsupported file.
 - **The real UI in a browser:** typed and formatted text, waited for "Saved", reloaded and confirmed it persisted; saved an edit as Bob from a second session and watched it appear in Alice's open editor, with Bob shown as editing; added and resolved comments; previewed and restored a version; signed in as Carol to check the commenter view; checked that a viewer gets a read-only page.
-- **Production:** a production build, then a smoke test of the live Vercel deployment with the seeded accounts.
+- **Production:** a production build, then a smoke test of the live Vercel deployment: sign-in as each demo account; create, rename, format, autosave and reload; a second user's save appearing in an open editor with the editing indicator; import; comment and version-history permissions; then deleting the test documents.
 
 AI wrote most of the first drafts. The scope cuts, the permission rules, the deployment path and the decision of what counted as done were mine, and every claim in these docs was checked against the running app.
