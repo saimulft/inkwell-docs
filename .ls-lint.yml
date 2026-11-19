@@ -1,0 +1,20 @@
+# File and folder names: lowercase kebab-case.
+# Exceptions: Next.js dynamic routes ([id]) and route groups ((app)), upper-case docs (README.md, AGENTS.md).
+ls:
+  .dir: kebab-case | regex:\[(\.\.\.)?[a-zA-Z]+\] | regex:\([a-z-]+\) | regex:\.well-known
+  .*: kebab-case
+  .md: kebab-case | screamingsnakecase
+  .txt: kebab-case | screamingsnakecase
+  .d.ts: kebab-case
+
+ignore:
+  - .git
+  - .claude
+  - .vercel
+  - .data
+  - node_modules
+  - .next
+  - out
+  - coverage
+  - drizzle
+  - next-env.d.ts
