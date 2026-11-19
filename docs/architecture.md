@@ -12,14 +12,14 @@ File import, persistence and deployment are built to be boring and reliable. Wit
 
 ## Stack
 
-| Layer | Choice | Why |
-| --- | --- | --- |
-| App | Next.js 16 (App Router), TypeScript strict | One full-stack app: server components for first paint, route handlers for the API, one deploy |
-| Editor | Tiptap v3 (ProseMirror) | Structured JSON documents, a schema I can also run on the server, mature formatting extensions |
-| Data | Drizzle ORM, Postgres | Typed queries and SQL migrations |
+| Layer    | Choice                                                   | Why                                                                                                                  |
+| -------- | -------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| App      | Next.js 16 (App Router), TypeScript strict               | One full-stack app: server components for first paint, route handlers for the API, one deploy                        |
+| Editor   | Tiptap v3 (ProseMirror)                                  | Structured JSON documents, a schema I can also run on the server, mature formatting extensions                       |
+| Data     | Drizzle ORM, Postgres                                    | Typed queries and SQL migrations                                                                                     |
 | Database | Neon Postgres in production, PGlite locally and in tests | PGlite is real Postgres compiled to WASM: zero setup for reviewers, and tests run the same SQL dialect as production |
-| UI | shadcn/ui on Radix, Tailwind CSS v4 | Accessible dialogs, menus and selects without building them |
-| Hosting | Vercel, deployed from a public GitHub repo | Free, native Next.js support, and every push to `main` is a production deploy |
+| UI       | shadcn/ui on Radix, Tailwind CSS v4                      | Accessible dialogs, menus and selects without building them                                                          |
+| Hosting  | Vercel, deployed from a public GitHub repo               | Free, native Next.js support, and every push to `main` is a production deploy                                        |
 
 ## Data model
 
@@ -39,12 +39,12 @@ File import, persistence and deployment are built to be boring and reliable. Wit
 
 The whole model is one function, `can(role, capability)` in `src/lib/services/access.ts`, with four capabilities: `view`, `comment`, `edit` and `manage`.
 
-| Role | View | Comment | Edit text and title, see and restore history | Share and delete |
-| --- | --- | --- | --- | --- |
-| Viewer | yes | | | |
-| Commenter | yes | yes | | |
-| Editor | yes | yes | yes | |
-| Owner | yes | yes | yes | yes |
+| Role      | View | Comment | Edit text and title, see and restore history | Share and delete |
+| --------- | ---- | ------- | -------------------------------------------- | ---------------- |
+| Viewer    | yes  |         |                                              |                  |
+| Commenter | yes  | yes     |                                              |                  |
+| Editor    | yes  | yes     | yes                                          |                  |
+| Owner     | yes  | yes     | yes                                          | yes              |
 
 `requireAccess()` loads the document with the caller's role in one query and applies it. If you have no access at all, the answer is **404**, so the API never confirms that a document exists. If you have some access but not enough, it is **403** with a message that names what you can do. Comment deletion adds one rule on top: the author or the owner.
 

@@ -3,29 +3,29 @@
 **Candidate:** Saimul Islam
 **Live app:** https://inkwell-docs-app.vercel.app
 **Source code (public GitHub):** https://github.com/saimulft/inkwell-docs
-**Walkthrough video:** see `VIDEO_URL.txt`
+**Walkthrough video (3 min 39 s, unlisted Vimeo):** https://vimeo.com/1248383864/b9bb502a27 (also in `VIDEO_URL.txt`)
 
 ## What's in this folder
 
-| Item | What it is |
-| --- | --- |
-| `inkwell-source.zip` | The full source code, without `node_modules`, `.next` or the local `.data` database (same code as the GitHub repo) |
-| `README.md` | Overview, demo accounts, local setup and run instructions, tests, status |
-| `docs/architecture.md` | Architecture note: what I prioritized, how it works, what I cut and why |
-| `docs/ai-workflow.md` | AI workflow note: tools, where AI helped, what I changed or rejected, how I verified |
-| `SUBMISSION.md` | This file |
-| `VIDEO_URL.txt` | Link to the 3 to 5 minute walkthrough video |
-| `screenshots/` | Screenshots of the main screens (also in `docs/screenshots/` in the repo) |
+| Item                   | What it is                                                                                                         |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| `inkwell-source.zip`   | The full source code, without `node_modules`, `.next` or the local `.data` database (same code as the GitHub repo) |
+| `README.md`            | Overview, demo accounts, local setup and run instructions, tests, status                                           |
+| `docs/architecture.md` | Architecture note: what I prioritized, how it works, what I cut and why                                            |
+| `docs/ai-workflow.md`  | AI workflow note: tools, where AI helped, what I changed or rejected, how I verified                               |
+| `SUBMISSION.md`        | This file                                                                                                          |
+| `VIDEO_URL.txt`        | Link to the 3 to 5 minute walkthrough video                                                                        |
+| `screenshots/`         | Screenshots of the main screens (also in `docs/screenshots/` in the repo)                                          |
 
 ## Demo accounts
 
 No passwords. On the sign-in page, click an account. Switch later from the avatar menu.
 
-| Account | In the demo data |
-| --- | --- |
+| Account             | In the demo data                                                                 |
+| ------------------- | -------------------------------------------------------------------------------- |
 | `alice@example.com` | Owns Q4 Product Roadmap (Bob can edit, Carol can comment) and Welcome to Inkwell |
-| `bob@example.com` | Owns Engineering Onboarding Notes (Alice can view). Editor on the roadmap |
-| `carol@example.com` | Owns Design Review Checklist. Commenter on the roadmap |
+| `bob@example.com`   | Owns Engineering Onboarding Notes (Alice can view). Editor on the roadmap        |
+| `carol@example.com` | Owns Design Review Checklist. Commenter on the roadmap                           |
 
 ## How to review in 2 minutes
 

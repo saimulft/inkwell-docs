@@ -5,6 +5,7 @@
 - **Claude Code** (Anthropic's coding agent, running Claude Opus 5.5 in the Claude desktop app) as the main pair: planning, scaffolding, writing code, running checks and drafting these docs.
 - **BrowserOS**, a browser automation tool, so the agent could drive the real UI: sign in as different users, type in the editor, reload, open panels and read the page back.
 - **The Vercel tooling** (CLI and connector) and the GitHub CLI for the repo and deployment, plus the bundled Next.js 16 docs in `node_modules/next/dist/docs` to check APIs that changed recently (Proxy, async route params).
+- **ElevenLabs** text-to-speech for the walkthrough narration. The agent captured the video's screens by driving the live app in BrowserOS (Bob's edits and the save conflict came from a real second session through the API), and the voice reads a script I approved. The video says so in its first line.
 
 ## Where AI materially sped things up
 

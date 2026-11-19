@@ -4,6 +4,7 @@ Inkwell is a lightweight collaborative document editor inspired by Google Docs. 
 
 **Live app:** https://inkwell-docs-app.vercel.app
 **Source:** https://github.com/saimulft/inkwell-docs
+**Walkthrough video (3 min 39 s):** https://vimeo.com/1248383864/b9bb502a27
 
 More detail: [architecture note](docs/architecture.md) · [AI workflow note](docs/ai-workflow.md) · [submission contents](SUBMISSION.md)
 
@@ -11,11 +12,11 @@ More detail: [architecture note](docs/architecture.md) · [AI workflow note](doc
 
 Sign-in is a demo flow with seeded accounts and no passwords. On `/login`, click an account to sign in. To switch users later, use the avatar menu (top right) and pick **Switch demo account**.
 
-| Account | Role in the demo data |
-| --- | --- |
+| Account                             | Role in the demo data                                                                                                   |
+| ----------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
 | `alice@example.com` (Alice Johnson) | Owns **Q4 Product Roadmap** (Bob can edit, Carol can comment, two seeded comments) and **Welcome to Inkwell** (private) |
-| `bob@example.com` (Bob Martinez) | Owns **Engineering Onboarding Notes** (shared with Alice as viewer). Editor on the roadmap |
-| `carol@example.com` (Carol Chen) | Owns **Design Review Checklist** (private). Commenter on the roadmap |
+| `bob@example.com` (Bob Martinez)    | Owns **Engineering Onboarding Notes** (shared with Alice as viewer). Editor on the roadmap                              |
+| `carol@example.com` (Carol Chen)    | Owns **Design Review Checklist** (private). Commenter on the roadmap                                                    |
 
 Sessions are real: a random token is stored hashed in the database and sent as an httpOnly cookie. Only the password step is skipped.
 
@@ -59,11 +60,11 @@ Sessions are real: a random token is stored hashed in the database and sent as a
 
 ## Supported import files
 
-| Type | Extensions | What is kept |
-| --- | --- | --- |
-| Plain text | `.txt` | Paragraphs (blank lines) and line breaks |
-| Markdown | `.md`, `.markdown` | Headings, bold, italic, links, lists, quotes, code. Raw HTML is shown as text, never run |
-| Word | `.docx` | Headings, paragraphs, lists, bold, italic, underline, strikethrough |
+| Type       | Extensions         | What is kept                                                                             |
+| ---------- | ------------------ | ---------------------------------------------------------------------------------------- |
+| Plain text | `.txt`             | Paragraphs (blank lines) and line breaks                                                 |
+| Markdown   | `.md`, `.markdown` | Headings, bold, italic, links, lists, quotes, code. Raw HTML is shown as text, never run |
+| Word       | `.docx`            | Headings, paragraphs, lists, bold, italic, underline, strikethrough                      |
 
 The limit is **4 MB per file**. Vercel functions reject request bodies over 4.5 MB, so 4 MB keeps a clear error message in the app instead of a platform error. The same limits are shown in the UI and enforced on the server. Images, tables and custom fonts or colours are not imported.
 
@@ -90,17 +91,17 @@ npm run db:setup
 
 ## Scripts
 
-| Script | What it does |
-| --- | --- |
-| `npm run dev` | Start the dev server on port 3000 |
-| `npm run build` | Production build |
-| `npm run start` | Serve the production build |
-| `npm test` | Run the Vitest suite |
-| `npm run lint` | ESLint plus file-name lint (ls-lint) |
-| `npm run typecheck` | Generate Next.js route types, then `tsc --noEmit` (strict mode) |
-| `npm run format` | Format with Prettier (`format:check` to verify only) |
-| `npm run db:generate` | Generate a SQL migration from `src/lib/db/schema.ts` |
-| `npm run db:setup` | Migrate and seed the database at `DATABASE_URL` |
+| Script                      | What it does                                                           |
+| --------------------------- | ---------------------------------------------------------------------- |
+| `npm run dev`               | Start the dev server on port 3000                                      |
+| `npm run build`             | Production build                                                       |
+| `npm run start`             | Serve the production build                                             |
+| `npm test`                  | Run the Vitest suite                                                   |
+| `npm run lint`              | ESLint plus file-name lint (ls-lint)                                   |
+| `npm run typecheck`         | Generate Next.js route types, then `tsc --noEmit` (strict mode)        |
+| `npm run format`            | Format with Prettier (`format:check` to verify only)                   |
+| `npm run db:generate`       | Generate a SQL migration from `src/lib/db/schema.ts`                   |
+| `npm run db:setup`          | Migrate and seed the database at `DATABASE_URL`                        |
 | `npm run db:reset -- --yes` | Hosted database only: migrate, wipe documents and sessions, seed again |
 
 ## Tests
