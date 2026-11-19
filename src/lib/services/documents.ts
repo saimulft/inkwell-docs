@@ -7,6 +7,7 @@ import { emptyDocument, parseDocumentContent } from '@/lib/editor/content';
 import { conflict, notFound } from '@/lib/errors';
 import { UNTITLED, type DocumentFilter } from '@/lib/validation';
 import { requireAccess, type AccessRole } from './access';
+import { recordVersion } from './versions';
 
 export type DocumentOwner = { id: string; name: string; email: string; color: string };
 
@@ -103,7 +104,7 @@ export async function getDocument(db: Db, userId: string, documentId: string): P
 export async function createDocument(
   db: Db,
   userId: string,
-  input: { title?: string; content?: JSONContent; contentText?: string } = {},
+  input: { title?: string; content?: JSONContent; contentText?: string; versionLabel?: string } = {},
 ): Promise<{ id: string }> {
   const [doc] = await db
     .insert(documents)
@@ -114,8 +115,23 @@ export async function createDocument(
       contentText: input.contentText ?? '',
       updatedById: userId,
     })
-    .returning({ id: documents.id });
-  return doc;
+    .returning({ id: documents.id, title: documents.title, content: documents.content, version: documents.version });
+  if (input.versionLabel) {
+    await recordVersion(
+      db,
+      {
+        documentId: doc.id,
+        authorId: userId,
+        version: doc.version,
+        title: doc.title,
+        content: doc.content,
+        contentText: input.contentText ?? '',
+        label: input.versionLabel,
+      },
+      { coalesce: false },
+    );
+  }
+  return { id: doc.id };
 }
 
 export type SaveResult = { version: number; title: string; updatedAt: string };
@@ -136,8 +152,9 @@ export async function updateDocument(
   if (input.title !== undefined) changes.title = input.title;
 
   let where = eq(documents.id, documentId);
+  let parsed: { content: JSONContent; text: string } | undefined;
   if (input.content !== undefined) {
-    const parsed = parseDocumentContent(input.content);
+    parsed = parseDocumentContent(input.content);
     Object.assign(changes, {
       content: parsed.content,
       contentText: parsed.text,
@@ -159,6 +176,10 @@ export async function updateDocument(
       updatedByName: latest.updatedByName,
       updatedAt: latest.updatedAt,
     });
+  }
+  if (parsed) {
+    const snapshot = { documentId, authorId: userId, version: saved.version, title: saved.title };
+    await recordVersion(db, { ...snapshot, content: parsed.content, contentText: parsed.text }, { coalesce: true });
   }
   return { version: saved.version, title: saved.title, updatedAt: saved.updatedAt.toISOString() };
 }

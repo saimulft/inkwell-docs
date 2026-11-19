@@ -57,13 +57,13 @@ export const documentShares = pgTable(
     userId: text('user_id')
       .notNull()
       .references(() => users.id, { onDelete: 'cascade' }),
-    role: text('role', { enum: ['viewer', 'editor'] }).notNull(),
+    role: text('role', { enum: ['viewer', 'commenter', 'editor'] }).notNull(),
     createdAt: createdAt(),
   },
   (t) => [
     primaryKey({ columns: [t.documentId, t.userId] }),
     index('document_shares_user_idx').on(t.userId),
-    check('document_shares_role_check', sql`${t.role} in ('viewer', 'editor')`),
+    check('document_shares_role_check', sql`${t.role} in ('viewer', 'commenter', 'editor')`),
   ],
 );
 
@@ -77,8 +77,50 @@ export const documentPresence = pgTable(
       .notNull()
       .references(() => users.id, { onDelete: 'cascade' }),
     lastSeenAt: timestamp('last_seen_at', { withTimezone: true }).notNull().defaultNow(),
+    // Last time this user changed the document while it was open; drives the "is editing" indicator.
+    editedAt: timestamp('edited_at', { withTimezone: true }),
   },
   (t) => [primaryKey({ columns: [t.documentId, t.userId] })],
+);
+
+/** Snapshots for version history. Rapid autosaves by the same person are folded into one snapshot. */
+export const documentVersions = pgTable(
+  'document_versions',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    documentId: uuid('document_id')
+      .notNull()
+      .references(() => documents.id, { onDelete: 'cascade' }),
+    version: integer('version').notNull(),
+    title: text('title').notNull(),
+    content: jsonb('content').$type<JSONContent>().notNull(),
+    contentText: text('content_text').notNull().default(''),
+    label: text('label'),
+    authorId: text('author_id').references(() => users.id, { onDelete: 'set null' }),
+    createdAt: createdAt(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index('document_versions_document_idx').on(t.documentId, t.updatedAt)],
+);
+
+export const comments = pgTable(
+  'comments',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    documentId: uuid('document_id')
+      .notNull()
+      .references(() => documents.id, { onDelete: 'cascade' }),
+    authorId: text('author_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    body: text('body').notNull(),
+    // The text the comment was made on, captured from the selection.
+    quote: text('quote'),
+    resolvedAt: timestamp('resolved_at', { withTimezone: true }),
+    resolvedById: text('resolved_by_id').references(() => users.id, { onDelete: 'set null' }),
+    createdAt: createdAt(),
+  },
+  (t) => [index('comments_document_idx').on(t.documentId, t.createdAt)],
 );
 
 export type User = typeof users.$inferSelect;

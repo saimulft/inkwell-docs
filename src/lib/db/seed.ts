@@ -3,7 +3,7 @@ import { count } from 'drizzle-orm';
 import { parseDocumentContent } from '@/lib/editor/content';
 import { schemaExtensions } from '@/lib/editor/extensions';
 import type { Db } from './client';
-import { documents, documentShares, users } from './schema';
+import { comments, documents, documentShares, documentVersions, users } from './schema';
 
 export const DEMO_USERS = [
   { id: 'user_alice', email: 'alice@example.com', name: 'Alice Johnson', title: 'Product Manager', color: '#2563eb' },
@@ -15,14 +15,27 @@ const SAMPLE_DOCUMENTS: {
   owner: string;
   title: string;
   html: string;
-  shares: { userId: string; role: 'viewer' | 'editor' }[];
+  shares: { userId: string; role: 'viewer' | 'commenter' | 'editor' }[];
+  comments?: { authorId: string; quote: string; body: string }[];
 }[] = [
   {
     owner: 'user_alice',
     title: 'Q4 Product Roadmap',
     shares: [
       { userId: 'user_bob', role: 'editor' },
-      { userId: 'user_carol', role: 'viewer' },
+      { userId: 'user_carol', role: 'commenter' },
+    ],
+    comments: [
+      {
+        authorId: 'user_carol',
+        quote: 'Cut onboarding time for new teams by 30%',
+        body: 'Do we have a baseline for this? I can pull last quarter’s onboarding numbers.',
+      },
+      {
+        authorId: 'user_bob',
+        quote: 'December: version history',
+        body: 'Version history is in this build already, so we could pull this into November.',
+      },
     ],
     html: `<h1>Q4 Product Roadmap</h1>
 <p>This roadmap is a <strong>living document</strong>. Edit it directly: changes save automatically, and everyone with access sees the latest version.</p>
@@ -43,7 +56,7 @@ const SAMPLE_DOCUMENTS: {
 <li data-type="taskItem" data-checked="true"><p>Confirm pricing tiers with Sales</p></li>
 <li data-type="taskItem" data-checked="false"><p>Decide how much offline support we need</p></li>
 </ul>
-<blockquote><p>Owner: Alice. Bob can edit, Carol can view.</p></blockquote>`,
+<blockquote><p>Owner: Alice. Bob can edit, Carol can comment.</p></blockquote>`,
   },
   {
     owner: 'user_alice',
@@ -53,7 +66,8 @@ const SAMPLE_DOCUMENTS: {
 <p>Inkwell is a lightweight collaborative document editor. A two-minute tour:</p>
 <ol>
 <li><p><strong>Format text</strong> with the toolbar or shortcuts: <strong>Ctrl/⌘+B</strong>, <em>Ctrl/⌘+I</em>, <u>Ctrl/⌘+U</u>, headings, lists and checklists.</p></li>
-<li><p><strong>Share</strong> a document with the Share button. Viewers can read; editors can change the text and title.</p></li>
+<li><p><strong>Share</strong> a document with the Share button. Viewers can read, commenters can also comment, and editors can change the text and title.</p></li>
+<li><p><strong>Comment</strong> on selected text, see <strong>version history</strong>, and <strong>download</strong> a document as Markdown or PDF from the toolbar.</p></li>
 <li><p><strong>Import</strong> a .txt, .md or .docx file from the home page to turn it into a new document, or insert one into an open document.</p></li>
 <li><p>Open the same document as two users (for example in a private window) to see who else is in it.</p></li>
 </ol>
@@ -103,8 +117,20 @@ export async function seedDemoData(db: Db): Promise<void> {
       .insert(documents)
       .values({ ownerId: sample.owner, title: sample.title, content, contentText: text, updatedById: sample.owner })
       .returning({ id: documents.id });
+    await db.insert(documentVersions).values({
+      documentId: doc.id,
+      version: 1,
+      title: sample.title,
+      content,
+      contentText: text,
+      authorId: sample.owner,
+      label: 'Created',
+    });
     if (sample.shares.length > 0) {
       await db.insert(documentShares).values(sample.shares.map((share) => ({ documentId: doc.id, ...share })));
+    }
+    if (sample.comments?.length) {
+      await db.insert(comments).values(sample.comments.map((comment) => ({ documentId: doc.id, ...comment })));
     }
   }
 }

@@ -10,7 +10,9 @@ export const titleSchema = z
   .max(TITLE_MAX_LENGTH, `Title must be ${TITLE_MAX_LENGTH} characters or fewer.`)
   .transform((title) => title || UNTITLED);
 
-export const shareRoleSchema = z.enum(['viewer', 'editor'], { error: 'Role must be "viewer" or "editor".' });
+export const shareRoleSchema = z.enum(['viewer', 'commenter', 'editor'], {
+  error: 'Role must be "viewer", "commenter" or "editor".',
+});
 
 const emailSchema = z
   .string({ error: 'Enter an email address.' })
@@ -38,6 +40,23 @@ export const updateDocumentSchema = z
 
 export const shareSchema = z.object({ email: emailSchema, role: shareRoleSchema });
 export const updateShareSchema = z.object({ role: shareRoleSchema });
+
+export const COMMENT_MAX_LENGTH = 2000;
+export const commentSchema = z.object({
+  body: z
+    .string({ error: 'Write a comment first.' })
+    .trim()
+    .min(1, 'Write a comment first.')
+    .max(COMMENT_MAX_LENGTH, `Comments must be ${COMMENT_MAX_LENGTH} characters or fewer.`),
+  quote: z
+    .string()
+    .trim()
+    .max(500)
+    .nullish()
+    .transform((quote) => quote || null),
+});
+export const resolveCommentSchema = z.object({ resolved: z.boolean({ error: 'resolved must be true or false.' }) });
+export const heartbeatSchema = z.object({ editing: z.boolean().optional() }).catch({});
 
 export const documentFilterSchema = z.enum(['all', 'owned', 'shared']).catch('all');
 export type DocumentFilter = z.infer<typeof documentFilterSchema>;

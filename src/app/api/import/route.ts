@@ -30,6 +30,7 @@ export const POST = route(async (request) => {
     title: imported.title,
     content: imported.content,
     contentText: imported.text,
+    versionLabel: `Imported from ${file.name}`,
   });
   return NextResponse.json({ document }, { status: 201 });
 });

@@ -42,7 +42,7 @@ type Props = {
   onCreate: () => void;
 };
 
-const ROLE_LABEL = { owner: 'Owner', editor: 'Can edit', viewer: 'Can view' } as const;
+const ROLE_LABEL = { owner: 'Owner', editor: 'Can edit', commenter: 'Can comment', viewer: 'Can view' } as const;
 
 export function DocumentList({ documents, currentUser, filter, query, onChanged, onCreate }: Props) {
   const [renaming, setRenaming] = useState<DocumentSummary | null>(null);
@@ -155,7 +155,7 @@ export function DocumentList({ documents, currentUser, filter, query, onChanged,
                           <ExternalLink /> Open in new tab
                         </Link>
                       </DropdownMenuItem>
-                      {doc.role !== 'viewer' && (
+                      {(doc.role === 'owner' || doc.role === 'editor') && (
                         <DropdownMenuItem onSelect={() => setRenaming(doc)}>
                           <PenLine /> Rename
                         </DropdownMenuItem>

@@ -22,7 +22,21 @@ import { api, errorMessage } from '@/lib/client-api';
 import type { AccessRole } from '@/lib/services/access';
 import type { AccessEntry } from '@/lib/services/sharing';
 
-type ShareRole = 'viewer' | 'editor';
+type ShareRole = 'viewer' | 'commenter' | 'editor';
+
+const ROLE_OPTIONS: { value: ShareRole; label: string; hint: string }[] = [
+  { value: 'viewer', label: 'Viewer', hint: 'Can read' },
+  { value: 'commenter', label: 'Commenter', hint: 'Can read and comment' },
+  { value: 'editor', label: 'Editor', hint: 'Can edit, rename and restore versions' },
+];
+
+function RoleOptions() {
+  return ROLE_OPTIONS.map((option) => (
+    <SelectItem key={option.value} value={option.value}>
+      {option.label}
+    </SelectItem>
+  ));
+}
 
 type Props = {
   documentId: string;
@@ -98,7 +112,7 @@ export function ShareDialog({ documentId, documentTitle, role, currentUserId, op
         method: 'POST',
         json: { email: query, role: newRole },
       });
-      const verb = newRole === 'editor' ? 'edit' : 'view';
+      const verb = { viewer: 'view', commenter: 'comment', editor: 'edit' }[newRole];
       toast.success(
         result.created ? `Shared with ${result.entry.user.name}` : `${result.entry.user.name} can now ${verb}`,
       );
@@ -155,7 +169,7 @@ export function ShareDialog({ documentId, documentTitle, role, currentUserId, op
           <DialogTitle className="pr-6 leading-snug">Share “{documentTitle}”</DialogTitle>
           <DialogDescription>
             {isOwner
-              ? 'Invite teammates by email. Viewers can read; editors can change the text and title.'
+              ? 'Invite teammates by email. Viewers read, commenters also comment, editors also edit.'
               : `Only ${owner?.name ?? 'the owner'} can change who has access.`}
           </DialogDescription>
         </DialogHeader>
@@ -180,12 +194,11 @@ export function ShareDialog({ documentId, documentTitle, role, currentUserId, op
               />
               <div className="flex gap-2">
                 <Select value={newRole} onValueChange={(value) => setNewRole(value as ShareRole)}>
-                  <SelectTrigger className="h-10! w-28" aria-label="Access level">
+                  <SelectTrigger className="h-10! w-32" aria-label="Access level">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="viewer">Viewer</SelectItem>
-                    <SelectItem value="editor">Editor</SelectItem>
+                    <RoleOptions />
                   </SelectContent>
                 </Select>
                 <Button type="submit" disabled={submitting} className="h-10 px-4">
@@ -193,6 +206,10 @@ export function ShareDialog({ documentId, documentTitle, role, currentUserId, op
                 </Button>
               </div>
             </div>
+            <p className="text-xs text-muted-foreground">
+              {ROLE_OPTIONS.find((option) => option.value === newRole)?.label}:{' '}
+              {ROLE_OPTIONS.find((option) => option.value === newRole)?.hint.toLowerCase()}.
+            </p>
             {error && (
               <p id="share-error" role="alert" className="text-sm text-destructive">
                 {error}
@@ -243,12 +260,11 @@ export function ShareDialog({ documentId, documentTitle, role, currentUserId, op
                           disabled={busyUserId === entry.user.id}
                           onValueChange={(value) => changeRole(entry.user.id, value as ShareRole)}
                         >
-                          <SelectTrigger size="sm" className="w-24" aria-label={`Access for ${entry.user.name}`}>
+                          <SelectTrigger size="sm" className="w-[124px]" aria-label={`Access for ${entry.user.name}`}>
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="viewer">Viewer</SelectItem>
-                            <SelectItem value="editor">Editor</SelectItem>
+                            <RoleOptions />
                           </SelectContent>
                         </Select>
                         <Button
